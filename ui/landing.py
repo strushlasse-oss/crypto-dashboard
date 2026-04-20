@@ -187,7 +187,7 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
         with left_col:
             # Coin switcher above price
             btn_cols = st.columns(len(coin_data))
-            for i, (col, (c, _, _)) in enumerate(zip(btn_cols, coin_data)):
+            for i, (col, (c, *_rest)) in enumerate(zip(btn_cols, coin_data)):
                 sym = (c.get("symbol") or c["id"]).upper()
                 with col:
                     if st.button(
