@@ -168,27 +168,7 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
             edge = ef.compute(enriched, fng_value=fng_value)
         coin_data.append((coin, m, edge))
 
-    # Coin switcher — radio buttons styled as pills
-    symbols = [(coin.get("symbol") or coin["id"]).upper() for coin, _, _ in coin_data]
     selected_idx = st.session_state.get("_landing_coin_idx", 0)
-
-    btn_cols = st.columns(len(coin_data))
-    for i, (col, sym) in enumerate(zip(btn_cols, symbols)):
-        chg = coin_data[i][1].get("price_change_percentage_24h_in_currency") or 0
-        arrow = "▲" if chg >= 0 else "▼"
-        chg_color = GREEN if chg >= 0 else RED
-        is_sel = i == selected_idx
-        label = f"{sym}"
-        with col:
-            if st.button(
-                label,
-                key=f"_coin_sel_{i}",
-                type="primary" if is_sel else "secondary",
-                use_container_width=True,
-            ):
-                st.session_state["_landing_coin_idx"] = i
-                st.rerun()
-
     coin, m, edge = coin_data[selected_idx]
     bias_label_val, bias_color = _bias_label(edge)
     confidence = edge.score if edge else 0
@@ -199,41 +179,62 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
 
     st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
     with st.container(border=True):
-        st.markdown(
-            f"<div class='coin-head' style='margin-bottom:0.7rem'>"
-            f"{f'<img src=\"{image}\" style=\"width:36px;height:36px\"/>' if image else ''}"
-            f"<div>"
-            f"<div class='coin-name' style='font-size:1.15rem'>{name}</div>"
-            f"<div class='coin-ticker'>{symbol} · {tag}</div>"
-            f"</div></div>",
-            unsafe_allow_html=True,
-        )
+        left_col, right_col = st.columns([1, 1])
 
-        _live_landing_price(
-            coin["id"],
-            m.get("current_price"),
-            m.get("price_change_percentage_24h_in_currency"),
-        )
+        with left_col:
+            # Coin switcher above price
+            btn_cols = st.columns(len(coin_data))
+            for i, (col, (c, _, _)) in enumerate(zip(btn_cols, coin_data)):
+                sym = (c.get("symbol") or c["id"]).upper()
+                with col:
+                    if st.button(
+                        sym,
+                        key=f"_coin_sel_{i}",
+                        type="primary" if i == selected_idx else "secondary",
+                        use_container_width=True,
+                    ):
+                        st.session_state["_landing_coin_idx"] = i
+                        st.rerun()
 
-        st.markdown(
-            f"<div style='margin-top:0.8rem;padding-top:0.7rem;"
-            f"border-top:1px solid rgba(255,255,255,0.06)'>"
-            f"<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem'>"
-            f"<span style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
-            f"color:{TEXT_MUTED};font-weight:600'>Bias</span>"
-            f"<span style='font-size:1.05rem;font-weight:700;color:{bias_color}'>{bias_label_val}</span>"
-            f"</div>"
-            f"<div style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
-            f"color:{TEXT_MUTED};font-weight:600;margin-bottom:0.3rem'>AI Confidence · {confidence}%</div>"
-            f"<div style='background:rgba(255,255,255,0.07);height:4px;border-radius:2px;overflow:hidden'>"
-            f"<div style='width:{confidence}%;height:100%;background:{bias_color}'></div>"
-            f"</div></div>",
-            unsafe_allow_html=True,
-        )
+            st.markdown("<div style='height:0.3rem'></div>", unsafe_allow_html=True)
 
-        if st.button("Öffnen →", key=f"open_{coin['id']}", use_container_width=True):
-            st.session_state["selected_coin"] = coin["id"]
-            st.rerun()
+            # Coin header
+            st.markdown(
+                f"<div class='coin-head' style='margin-bottom:0.5rem'>"
+                f"{f'<img src=\"{image}\" style=\"width:32px;height:32px\"/>' if image else ''}"
+                f"<div>"
+                f"<div class='coin-name' style='font-size:1.05rem'>{name}</div>"
+                f"<div class='coin-ticker'>{symbol} · {tag}</div>"
+                f"</div></div>",
+                unsafe_allow_html=True,
+            )
+
+            # Live price
+            _live_landing_price(
+                coin["id"],
+                m.get("current_price"),
+                m.get("price_change_percentage_24h_in_currency"),
+            )
+
+        with right_col:
+            st.markdown("<div style='height:2.8rem'></div>", unsafe_allow_html=True)
+            st.markdown(
+                f"<div style='padding-left:1rem;border-left:1px solid rgba(255,255,255,0.06)'>"
+                f"<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem'>"
+                f"<span style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
+                f"color:{TEXT_MUTED};font-weight:600'>Bias</span>"
+                f"<span style='font-size:1.2rem;font-weight:700;color:{bias_color}'>{bias_label_val}</span>"
+                f"</div>"
+                f"<div style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
+                f"color:{TEXT_MUTED};font-weight:600;margin-bottom:0.3rem'>AI Confidence · {confidence}%</div>"
+                f"<div style='background:rgba(255,255,255,0.07);height:4px;border-radius:2px;overflow:hidden;margin-bottom:1rem'>"
+                f"<div style='width:{confidence}%;height:100%;background:{bias_color}'></div>"
+                f"</div></div>",
+                unsafe_allow_html=True,
+            )
+            if st.button("Öffnen →", key=f"open_{coin['id']}", use_container_width=True):
+                st.session_state["selected_coin"] = coin["id"]
+                st.rerun()
 
     # Metrics bar below coin cards
     st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
