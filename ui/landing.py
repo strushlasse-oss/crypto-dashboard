@@ -98,61 +98,72 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
             edge = ef.compute(enriched, fng_value=fng_value)
         coin_data.append((coin, m, edge))
 
-    # Tab labels: symbol + price change arrow
-    def _tab_label(coin, m, edge):
-        symbol = (coin.get("symbol") or "").upper()
-        chg = m.get("price_change_percentage_24h_in_currency") or 0
+    # Coin switcher — radio buttons styled as pills
+    symbols = [(coin.get("symbol") or coin["id"]).upper() for coin, _, _ in coin_data]
+    selected_idx = st.session_state.get("_landing_coin_idx", 0)
+
+    btn_cols = st.columns(len(coin_data))
+    for i, (col, sym) in enumerate(zip(btn_cols, symbols)):
+        chg = coin_data[i][1].get("price_change_percentage_24h_in_currency") or 0
         arrow = "▲" if chg >= 0 else "▼"
-        return f"{symbol} {arrow}{abs(chg):.1f}%"
+        chg_color = GREEN if chg >= 0 else RED
+        is_sel = i == selected_idx
+        label = f"{sym}"
+        with col:
+            if st.button(
+                label,
+                key=f"_coin_sel_{i}",
+                type="primary" if is_sel else "secondary",
+                use_container_width=True,
+            ):
+                st.session_state["_landing_coin_idx"] = i
+                st.rerun()
 
-    tab_labels = [_tab_label(c, m, e) for c, m, e in coin_data]
-    tabs = st.tabs(tab_labels)
+    coin, m, edge = coin_data[selected_idx]
+    bias_label_val, bias_color = _bias_label(edge)
+    confidence = edge.score if edge else 0
+    name   = coin.get("name", coin["id"])
+    symbol = (coin.get("symbol") or "").upper()
+    tag    = coin.get("tag", "")
+    image  = m.get("image", "")
 
-    for tab, (coin, m, edge) in zip(tabs, coin_data):
-        bias_label, bias_color = _bias_label(edge)
-        confidence = edge.score if edge else 0
-        name   = coin.get("name", coin["id"])
-        symbol = (coin.get("symbol") or "").upper()
-        tag    = coin.get("tag", "")
-        image  = m.get("image", "")
+    st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown(
+            f"<div class='coin-head' style='margin-bottom:0.7rem'>"
+            f"{f'<img src=\"{image}\" style=\"width:36px;height:36px\"/>' if image else ''}"
+            f"<div>"
+            f"<div class='coin-name' style='font-size:1.15rem'>{name}</div>"
+            f"<div class='coin-ticker'>{symbol} · {tag}</div>"
+            f"</div></div>",
+            unsafe_allow_html=True,
+        )
 
-        with tab:
-            with st.container(border=True):
-                st.markdown(
-                    f"<div class='coin-head' style='margin-bottom:0.7rem'>"
-                    f"{f'<img src=\"{image}\" style=\"width:36px;height:36px\"/>' if image else ''}"
-                    f"<div>"
-                    f"<div class='coin-name' style='font-size:1.15rem'>{name}</div>"
-                    f"<div class='coin-ticker'>{symbol} · {tag}</div>"
-                    f"</div></div>",
-                    unsafe_allow_html=True,
-                )
+        _live_landing_price(
+            coin["id"],
+            m.get("current_price"),
+            m.get("price_change_percentage_24h_in_currency"),
+        )
 
-                _live_landing_price(
-                    coin["id"],
-                    m.get("current_price"),
-                    m.get("price_change_percentage_24h_in_currency"),
-                )
+        st.markdown(
+            f"<div style='margin-top:0.8rem;padding-top:0.7rem;"
+            f"border-top:1px solid rgba(255,255,255,0.06)'>"
+            f"<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem'>"
+            f"<span style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
+            f"color:{TEXT_MUTED};font-weight:600'>Bias</span>"
+            f"<span style='font-size:1.05rem;font-weight:700;color:{bias_color}'>{bias_label_val}</span>"
+            f"</div>"
+            f"<div style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
+            f"color:{TEXT_MUTED};font-weight:600;margin-bottom:0.3rem'>AI Confidence · {confidence}%</div>"
+            f"<div style='background:rgba(255,255,255,0.07);height:4px;border-radius:2px;overflow:hidden'>"
+            f"<div style='width:{confidence}%;height:100%;background:{bias_color}'></div>"
+            f"</div></div>",
+            unsafe_allow_html=True,
+        )
 
-                st.markdown(
-                    f"<div style='margin-top:0.8rem;padding-top:0.7rem;"
-                    f"border-top:1px solid rgba(255,255,255,0.06)'>"
-                    f"<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem'>"
-                    f"<span style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
-                    f"color:{TEXT_MUTED};font-weight:600'>Bias</span>"
-                    f"<span style='font-size:1.05rem;font-weight:700;color:{bias_color}'>{bias_label}</span>"
-                    f"</div>"
-                    f"<div style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
-                    f"color:{TEXT_MUTED};font-weight:600;margin-bottom:0.3rem'>AI Confidence · {confidence}%</div>"
-                    f"<div style='background:rgba(255,255,255,0.07);height:4px;border-radius:2px;overflow:hidden'>"
-                    f"<div style='width:{confidence}%;height:100%;background:{bias_color}'></div>"
-                    f"</div></div>",
-                    unsafe_allow_html=True,
-                )
-
-                if st.button("Öffnen →", key=f"open_{coin['id']}", width="stretch"):
-                    st.session_state["selected_coin"] = coin["id"]
-                    st.rerun()
+        if st.button("Öffnen →", key=f"open_{coin['id']}", use_container_width=True):
+            st.session_state["selected_coin"] = coin["id"]
+            st.rerun()
 
     # Metrics bar below coin cards
     st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)

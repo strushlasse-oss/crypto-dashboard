@@ -62,7 +62,7 @@ def get_messages(limit: int = 20) -> list[dict]:
 
         items = []
         for m in raw:
-            text = (m.text or "").strip().replace("**", "").replace("__", "")
+            text = (m.text or m.message or "").strip().replace("**", "").replace("__", "")
             if not text:
                 continue
 
