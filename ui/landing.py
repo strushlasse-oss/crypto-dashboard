@@ -156,22 +156,27 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
         unsafe_allow_html=True,
     )
 
-    all_markets = []
+    import pandas as _pd
 
-    # Pre-load all market data
+    all_markets = []
+    selected_idx = st.session_state.get("_landing_coin_idx", 0)
+
+    # Load chart data only for the selected coin to avoid rate-limit spam
     coin_data = []
-    for coin in coins:
+    for i, coin in enumerate(coins):
         m = markets_by_id.get(coin["id"], {})
         all_markets.append(m)
-        raw = cg.get_market_chart(coin["id"], days=200)
-        edge, enriched, snap = None, raw, {}
-        if not raw.empty:
-            enriched = ind.compute_indicators(raw)
-            edge = ef.compute(enriched, fng_value=fng_value)
-            snap = ind.latest_snapshot(enriched)
+        if i == selected_idx:
+            raw = cg.get_market_chart(coin["id"], days=200)
+            edge, enriched, snap = None, raw, {}
+            if not raw.empty:
+                enriched = ind.compute_indicators(raw)
+                edge = ef.compute(enriched, fng_value=fng_value)
+                snap = ind.latest_snapshot(enriched)
+        else:
+            edge, enriched, snap = None, _pd.DataFrame(), {}
         coin_data.append((coin, m, edge, enriched, snap))
 
-    selected_idx = st.session_state.get("_landing_coin_idx", 0)
     coin, m, edge, enriched, snap = coin_data[selected_idx]
     bias_label_val, bias_color = _bias_label(edge)
     confidence = edge.score if edge else 0
@@ -275,6 +280,19 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
                     f"border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.08em;"
                     f"padding:2px 6px;text-transform:uppercase;margin-bottom:6px'>⚡ {badge_txt}</div>"
                     f"<div style='font-size:12.5px;line-height:1.55;color:#c8c8c8'>{safe}</div>"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
+            elif m.get("current_price"):
+                pct = m.get("price_change_percentage_24h_in_currency") or 0
+                direction = "gestiegen" if pct >= 0 else "gefallen"
+                pct_color = GREEN if pct >= 0 else RED
+                st.markdown(
+                    f"<div style='padding-left:1rem;border-left:1px solid rgba(255,255,255,0.06)'>"
+                    f"<div style='font-size:12.5px;line-height:1.55;color:#888'>"
+                    f"{name} ist in den letzten 24h um "
+                    f"<span style='color:{pct_color};font-weight:600'>{abs(pct):.2f}%</span> {direction}. "
+                    f"Indikatoren werden beim nächsten Reload berechnet.</div>"
                     f"</div>",
                     unsafe_allow_html=True,
                 )
