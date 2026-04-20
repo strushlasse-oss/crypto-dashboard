@@ -7,6 +7,7 @@ from analysis import ai_overview
 from analysis import edge_factor as ef
 from analysis import indicators as ind
 from data import coingecko as cg
+from data import cme_gaps as cme
 from ui import bearing_card, derivatives_charts, edge_score, flow_card, price_card, status_cards, tradingview
 from ui.styles import GREEN, RED, YELLOW, TEXT_DIM, TEXT_MUTED, ACCENT
 
@@ -203,6 +204,69 @@ def render(coin: dict, market: dict, fear_greed: dict | None, days: int = 90) ->
     with bearing_col:
         with st.container(border=True):
             bearing_card.render(enriched, coin["id"])
+
+    st.write("")
+
+    # ── CME Gaps (BTC only) ───────────────────────────────────
+    if coin["id"] == "bitcoin":
+        current_price = market.get("current_price")
+        gaps = cme.get_open_gaps()
+        with st.container(border=True):
+            st.markdown(
+                "<div class='pcard-title' style='margin-bottom:0.5rem'>CME Gaps · Unaufgefüllt</div>",
+                unsafe_allow_html=True,
+            )
+            if not gaps:
+                st.markdown(
+                    f"<div style='color:{TEXT_DIM};font-size:13px'>Keine offenen CME Gaps gefunden.</div>",
+                    unsafe_allow_html=True,
+                )
+            else:
+                above = [g for g in gaps if g["low"] > (current_price or 0)]
+                below = [g for g in gaps if g["high"] <= (current_price or 0)]
+                rows = ""
+                for g in above[:4]:
+                    dist = (g["low"] - current_price) / current_price * 100 if current_price else 0
+                    rows += (
+                        f"<tr>"
+                        f"<td style='padding:6px 10px;color:#e0e0e0;font-weight:600'>"
+                        f"${g['low']:,.0f} – ${g['high']:,.0f}</td>"
+                        f"<td style='padding:6px 10px;color:{RED};font-size:12px'>"
+                        f"▲ +{dist:.1f}% entfernt</td>"
+                        f"<td style='padding:6px 10px;color:rgba(255,255,255,0.4);font-size:12px'>"
+                        f"{g['size_pct']:+.2f}% Gap · {g['date']}</td>"
+                        f"</tr>"
+                    )
+                for g in below[:4]:
+                    dist = (current_price - g["high"]) / current_price * 100 if current_price else 0
+                    rows += (
+                        f"<tr>"
+                        f"<td style='padding:6px 10px;color:#e0e0e0;font-weight:600'>"
+                        f"${g['low']:,.0f} – ${g['high']:,.0f}</td>"
+                        f"<td style='padding:6px 10px;color:{GREEN};font-size:12px'>"
+                        f"▼ -{dist:.1f}% entfernt</td>"
+                        f"<td style='padding:6px 10px;color:rgba(255,255,255,0.4);font-size:12px'>"
+                        f"{g['size_pct']:+.2f}% Gap · {g['date']}</td>"
+                        f"</tr>"
+                    )
+                st.markdown(
+                    f"<table style='width:100%;border-collapse:collapse;font-size:13px;font-family:Inter,sans-serif'>"
+                    f"<thead><tr style='border-bottom:1px solid rgba(255,255,255,0.08)'>"
+                    f"<th style='padding:4px 10px;text-align:left;font-size:10px;text-transform:uppercase;"
+                    f"letter-spacing:0.1em;color:rgba(255,255,255,0.3);font-weight:600'>Preis-Range</th>"
+                    f"<th style='padding:4px 10px;text-align:left;font-size:10px;text-transform:uppercase;"
+                    f"letter-spacing:0.1em;color:rgba(255,255,255,0.3);font-weight:600'>Abstand</th>"
+                    f"<th style='padding:4px 10px;text-align:left;font-size:10px;text-transform:uppercase;"
+                    f"letter-spacing:0.1em;color:rgba(255,255,255,0.3);font-weight:600'>Info</th>"
+                    f"</tr></thead><tbody>{rows}</tbody></table>",
+                    unsafe_allow_html=True,
+                )
+                st.markdown(
+                    f"<div style='font-size:11px;color:{TEXT_DIM};margin-top:0.4rem'>"
+                    f"{len(above)} Gap(s) über Kurs · {len(below)} Gap(s) unter Kurs · "
+                    f"Quelle: CME BTC Futures (BTC=F)</div>",
+                    unsafe_allow_html=True,
+                )
 
     st.write("")
 

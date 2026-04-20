@@ -52,3 +52,4 @@ tornado==6.5.5
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.6.3
+yfinance>=0.2
