@@ -84,10 +84,11 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
         unsafe_allow_html=True,
     )
 
-    cols = st.columns(len(coins))
     all_markets = []
 
-    for col, coin in zip(cols, coins):
+    # Pre-load all market data
+    coin_data = []
+    for coin in coins:
         m = markets_by_id.get(coin["id"], {})
         all_markets.append(m)
         raw = cg.get_market_chart(coin["id"], days=200)
@@ -95,56 +96,63 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
         if not raw.empty:
             enriched = ind.compute_indicators(raw)
             edge = ef.compute(enriched, fng_value=fng_value)
+        coin_data.append((coin, m, edge))
 
+    # Tab labels: symbol + price change arrow
+    def _tab_label(coin, m, edge):
+        symbol = (coin.get("symbol") or "").upper()
+        chg = m.get("price_change_percentage_24h_in_currency") or 0
+        arrow = "▲" if chg >= 0 else "▼"
+        return f"{symbol} {arrow}{abs(chg):.1f}%"
+
+    tab_labels = [_tab_label(c, m, e) for c, m, e in coin_data]
+    tabs = st.tabs(tab_labels)
+
+    for tab, (coin, m, edge) in zip(tabs, coin_data):
         bias_label, bias_color = _bias_label(edge)
         confidence = edge.score if edge else 0
-        mood = status_cards.market_mood(fng_value)
-
-        name = coin.get("name", coin["id"])
+        name   = coin.get("name", coin["id"])
         symbol = (coin.get("symbol") or "").upper()
-        tag = coin.get("tag", "")
-        image = m.get("image", "")
+        tag    = coin.get("tag", "")
+        image  = m.get("image", "")
 
-        with col, st.container(border=True):
-            # Header
-            st.markdown(
-                f"<div class='coin-head' style='margin-bottom:0.7rem'>"
-                f"{f'<img src=\"{image}\" style=\"width:36px;height:36px\"/>' if image else ''}"
-                f"<div>"
-                f"<div class='coin-name' style='font-size:1.15rem'>{name}</div>"
-                f"<div class='coin-ticker'>{symbol} · {tag}</div>"
-                f"</div></div>",
-                unsafe_allow_html=True,
-            )
+        with tab:
+            with st.container(border=True):
+                st.markdown(
+                    f"<div class='coin-head' style='margin-bottom:0.7rem'>"
+                    f"{f'<img src=\"{image}\" style=\"width:36px;height:36px\"/>' if image else ''}"
+                    f"<div>"
+                    f"<div class='coin-name' style='font-size:1.15rem'>{name}</div>"
+                    f"<div class='coin-ticker'>{symbol} · {tag}</div>"
+                    f"</div></div>",
+                    unsafe_allow_html=True,
+                )
 
-            # Live price fragment
-            _live_landing_price(
-                coin["id"],
-                m.get("current_price"),
-                m.get("price_change_percentage_24h_in_currency"),
-            )
+                _live_landing_price(
+                    coin["id"],
+                    m.get("current_price"),
+                    m.get("price_change_percentage_24h_in_currency"),
+                )
 
-            # Bias + Confidence
-            st.markdown(
-                f"<div style='margin-top:0.8rem;padding-top:0.7rem;"
-                f"border-top:1px solid rgba(255,255,255,0.06)'>"
-                f"<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem'>"
-                f"<span style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
-                f"color:{TEXT_MUTED};font-weight:600'>Bias</span>"
-                f"<span style='font-size:1.05rem;font-weight:700;color:{bias_color}'>{bias_label}</span>"
-                f"</div>"
-                f"<div style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
-                f"color:{TEXT_MUTED};font-weight:600;margin-bottom:0.3rem'>AI Confidence · {confidence}%</div>"
-                f"<div style='background:rgba(255,255,255,0.07);height:4px;border-radius:2px;overflow:hidden'>"
-                f"<div style='width:{confidence}%;height:100%;background:{bias_color}'></div>"
-                f"</div>"
-                f"</div>",
-                unsafe_allow_html=True,
-            )
+                st.markdown(
+                    f"<div style='margin-top:0.8rem;padding-top:0.7rem;"
+                    f"border-top:1px solid rgba(255,255,255,0.06)'>"
+                    f"<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem'>"
+                    f"<span style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
+                    f"color:{TEXT_MUTED};font-weight:600'>Bias</span>"
+                    f"<span style='font-size:1.05rem;font-weight:700;color:{bias_color}'>{bias_label}</span>"
+                    f"</div>"
+                    f"<div style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
+                    f"color:{TEXT_MUTED};font-weight:600;margin-bottom:0.3rem'>AI Confidence · {confidence}%</div>"
+                    f"<div style='background:rgba(255,255,255,0.07);height:4px;border-radius:2px;overflow:hidden'>"
+                    f"<div style='width:{confidence}%;height:100%;background:{bias_color}'></div>"
+                    f"</div></div>",
+                    unsafe_allow_html=True,
+                )
 
-            if st.button("Öffnen →", key=f"open_{coin['id']}", width="stretch"):
-                st.session_state["selected_coin"] = coin["id"]
-                st.rerun()
+                if st.button("Öffnen →", key=f"open_{coin['id']}", width="stretch"):
+                    st.session_state["selected_coin"] = coin["id"]
+                    st.rerun()
 
     # Metrics bar below coin cards
     st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
