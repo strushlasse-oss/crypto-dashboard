@@ -186,18 +186,17 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
 
         with left_col:
             # Coin switcher above price
-            btn_cols = st.columns(len(coin_data))
-            for i, (col, (c, *_rest)) in enumerate(zip(btn_cols, coin_data)):
-                sym = (c.get("symbol") or c["id"]).upper()
-                with col:
-                    if st.button(
-                        sym,
-                        key=f"_coin_sel_{i}",
-                        type="primary" if i == selected_idx else "secondary",
-                        use_container_width=True,
-                    ):
-                        st.session_state["_landing_coin_idx"] = i
-                        st.rerun()
+            syms = [(c.get("symbol") or c["id"]).upper() for (c, *_) in coin_data]
+            chosen = st.segmented_control(
+                "Coin",
+                options=syms,
+                default=syms[selected_idx],
+                label_visibility="collapsed",
+                key="_coin_seg",
+            )
+            if chosen and syms.index(chosen) != selected_idx:
+                st.session_state["_landing_coin_idx"] = syms.index(chosen)
+                st.rerun()
 
             st.markdown("<div style='height:0.3rem'></div>", unsafe_allow_html=True)
 

@@ -26,9 +26,11 @@ CSS = f"""
   html, body, .stApp, [class*="css"] {{
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
   }}
-  .stApp {{ background: {BG}; color: {TEXT}; }}
+  html, body {{ overflow-x: hidden; max-width: 100vw; }}
+  .stApp {{ background: {BG}; color: {TEXT}; overflow-x: hidden; }}
   .block-container {{
     padding-top: 1.4rem; padding-bottom: 4rem; max-width: 1380px;
+    overflow-x: hidden;
   }}
   section[data-testid="stSidebar"] {{
     background: #0c0c0c;
