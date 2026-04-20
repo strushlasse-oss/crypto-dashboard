@@ -3,8 +3,10 @@ from __future__ import annotations
 
 from typing import Any
 
+import plotly.graph_objects as go
 import streamlit as st
 
+from analysis import ai_overview
 from analysis import edge_factor as ef
 from analysis import indicators as ind
 from data import binance as bnb
@@ -162,14 +164,15 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
         m = markets_by_id.get(coin["id"], {})
         all_markets.append(m)
         raw = cg.get_market_chart(coin["id"], days=200)
-        edge = None
+        edge, enriched, snap = None, raw, {}
         if not raw.empty:
             enriched = ind.compute_indicators(raw)
             edge = ef.compute(enriched, fng_value=fng_value)
-        coin_data.append((coin, m, edge))
+            snap = ind.latest_snapshot(enriched)
+        coin_data.append((coin, m, edge, enriched, snap))
 
     selected_idx = st.session_state.get("_landing_coin_idx", 0)
-    coin, m, edge = coin_data[selected_idx]
+    coin, m, edge, enriched, snap = coin_data[selected_idx]
     bias_label_val, bias_color = _bias_label(edge)
     confidence = edge.score if edge else 0
     name   = coin.get("name", coin["id"])
@@ -216,6 +219,29 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
                 m.get("price_change_percentage_24h_in_currency"),
             )
 
+            # Mini price chart (30 days)
+            if not enriched.empty and "close" in enriched.columns:
+                prices = enriched["close"].dropna().tail(30).tolist()
+                if len(prices) >= 2:
+                    chg_color_val = GREEN if (prices[-1] >= prices[0]) else RED
+                    lo, hi = min(prices), max(prices)
+                    pad = (hi - lo) * 0.05 or 1
+                    fig = go.Figure(go.Scatter(
+                        y=prices, mode="lines",
+                        line=dict(color=chg_color_val, width=1.5),
+                        fill="tozeroy",
+                        fillcolor=f"rgba({'0,208,132' if chg_color_val==GREEN else '255,68,85'},0.08)",
+                        hoverinfo="skip",
+                    ))
+                    fig.update_layout(
+                        margin=dict(l=0, r=0, t=4, b=0), height=80,
+                        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                        xaxis=dict(visible=False), yaxis=dict(visible=False, range=[lo-pad, hi+pad]),
+                    )
+                    st.plotly_chart(fig, use_container_width=True,
+                                   config={"displayModeBar": False},
+                                   key=f"mini_chart_{coin['id']}")
+
         with right_col:
             st.markdown("<div style='height:2.8rem'></div>", unsafe_allow_html=True)
             st.markdown(
@@ -227,11 +253,33 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
                 f"</div>"
                 f"<div style='font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;"
                 f"color:{TEXT_MUTED};font-weight:600;margin-bottom:0.3rem'>AI Confidence · {confidence}%</div>"
-                f"<div style='background:rgba(255,255,255,0.07);height:4px;border-radius:2px;overflow:hidden;margin-bottom:1rem'>"
+                f"<div style='background:rgba(255,255,255,0.07);height:4px;border-radius:2px;overflow:hidden;margin-bottom:0.8rem'>"
                 f"<div style='width:{confidence}%;height:100%;background:{bias_color}'></div>"
                 f"</div></div>",
                 unsafe_allow_html=True,
             )
+
+            # Per-coin AI overview
+            if edge:
+                trend = ind.trend_label(snap) if snap else "unbekannt"
+                ai_text, is_ai = ai_overview.snapshot(
+                    coin_id=coin["id"], name=name,
+                    price=m.get("current_price"),
+                    edge=edge, fng_value=fng_value, trend=trend,
+                )
+                safe = ai_text.replace("<", "&lt;").replace(">", "&gt;")
+                badge = "rgba(0,208,132,0.15)" if is_ai else "rgba(255,255,255,0.06)"
+                badge_txt = "AI" if is_ai else "Fallback"
+                st.markdown(
+                    f"<div style='padding-left:1rem;border-left:1px solid rgba(255,255,255,0.06)'>"
+                    f"<div style='display:inline-block;background:{badge};color:{'#00d084' if is_ai else '#888'};"
+                    f"border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.08em;"
+                    f"padding:2px 6px;text-transform:uppercase;margin-bottom:6px'>⚡ {badge_txt}</div>"
+                    f"<div style='font-size:12.5px;line-height:1.55;color:#c8c8c8'>{safe}</div>"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
+
             if st.button("Öffnen →", key=f"open_{coin['id']}", use_container_width=True):
                 st.session_state["selected_coin"] = coin["id"]
                 st.rerun()
