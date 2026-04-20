@@ -42,7 +42,9 @@ def _get_session_path(session_b64: str | None) -> str:
     if session_b64:
         tmp = Path(tempfile.gettempdir()) / "tg_session.session"
         if not tmp.exists():
-            tmp.write_bytes(base64.b64decode(session_b64))
+            # fix missing base64 padding
+            padded = session_b64 + "=" * (-len(session_b64) % 4)
+            tmp.write_bytes(base64.b64decode(padded))
         return str(tmp.with_suffix(""))
 
     return _LOCAL_SESSION

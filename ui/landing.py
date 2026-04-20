@@ -9,8 +9,78 @@ from analysis import edge_factor as ef
 from analysis import indicators as ind
 from data import binance as bnb
 from data import coingecko as cg
+from data import global_metrics as gm
 from ui import ai_summary_widget, capital_flow, market_sessions, metrics_bar, status_cards, telegram_widget, liquidations_widget
 from ui.styles import GREEN, RED, TEXT_DIM, TEXT_MUTED, ACCENT
+
+
+def _render_calendar() -> None:
+    from datetime import timezone as _tz
+    st.markdown("<div class='pcard-title' style='margin-bottom:0.6rem'>Economic Calendar · High Impact</div>",
+                unsafe_allow_html=True)
+    events = gm.get_calendar(impact_filter="High")
+    if not events:
+        st.markdown(f"<div style='color:{TEXT_DIM};font-size:13px'>Keine Daten verfügbar.</div>",
+                    unsafe_allow_html=True)
+        return
+
+    rows = ""
+    shown = 0
+    for e in events:
+        diff = e["diff_sec"]
+        if diff < -3600:
+            continue
+        time_str = e["date"].strftime("%a %d. %b  %H:%M UTC")
+        if diff > 0:
+            h, m = int(diff // 3600), int((diff % 3600) // 60)
+            countdown = f"in {h}h {m}m" if h else f"in {m}m"
+            cd_color = "#f7a832" if diff < 7200 else "rgba(255,255,255,0.35)"
+        else:
+            countdown = "läuft"
+            cd_color = "#ff4455"
+        forecast = e.get("forecast") or "–"
+        previous = e.get("previous") or "–"
+        actual   = e.get("actual") or ""
+        actual_html = f"<span style='color:#00d084;font-weight:700'>{actual}</span>" if actual else ""
+        rows += (
+            f"<tr>"
+            f"<td style='padding:7px 10px;color:#e0e0e0;font-weight:600'>{e['title']}"
+            f" <span style='color:rgba(255,255,255,0.3);font-size:11px'>({e['country']})</span></td>"
+            f"<td style='padding:7px 10px;color:rgba(255,255,255,0.45);font-size:12px'>{time_str}</td>"
+            f"<td style='padding:7px 10px;font-weight:700;color:{cd_color}'>{countdown}</td>"
+            f"<td style='padding:7px 10px;color:rgba(255,255,255,0.45);font-size:12px'>{forecast}</td>"
+            f"<td style='padding:7px 10px;color:rgba(255,255,255,0.45);font-size:12px'>{previous}</td>"
+            f"<td style='padding:7px 10px;font-size:12px'>{actual_html}</td>"
+            f"</tr>"
+        )
+        shown += 1
+        if shown >= 8:
+            break
+
+    if shown == 0:
+        st.markdown(f"<div style='color:{TEXT_DIM};font-size:13px'>Keine anstehenden Ereignisse.</div>",
+                    unsafe_allow_html=True)
+        return
+
+    st.markdown(
+        f"<table style='width:100%;border-collapse:collapse;font-size:13px;font-family:Inter,sans-serif'>"
+        f"<thead><tr style='border-bottom:1px solid rgba(255,255,255,0.08)'>"
+        f"<th style='padding:4px 10px;text-align:left;font-size:10px;text-transform:uppercase;"
+        f"letter-spacing:0.1em;color:rgba(255,255,255,0.3);font-weight:600'>Ereignis</th>"
+        f"<th style='padding:4px 10px;text-align:left;font-size:10px;text-transform:uppercase;"
+        f"letter-spacing:0.1em;color:rgba(255,255,255,0.3);font-weight:600'>Zeit</th>"
+        f"<th style='padding:4px 10px;text-align:left;font-size:10px;text-transform:uppercase;"
+        f"letter-spacing:0.1em;color:rgba(255,255,255,0.3);font-weight:600'>Countdown</th>"
+        f"<th style='padding:4px 10px;text-align:left;font-size:10px;text-transform:uppercase;"
+        f"letter-spacing:0.1em;color:rgba(255,255,255,0.3);font-weight:600'>Prognose</th>"
+        f"<th style='padding:4px 10px;text-align:left;font-size:10px;text-transform:uppercase;"
+        f"letter-spacing:0.1em;color:rgba(255,255,255,0.3);font-weight:600'>Vorher</th>"
+        f"<th style='padding:4px 10px;text-align:left;font-size:10px;text-transform:uppercase;"
+        f"letter-spacing:0.1em;color:rgba(255,255,255,0.3);font-weight:600'>Aktuell</th>"
+        f"</tr></thead>"
+        f"<tbody>{rows}</tbody></table>",
+        unsafe_allow_html=True,
+    )
 
 
 def _fmt_pct(v: Any) -> str:
@@ -191,4 +261,9 @@ def render(coins: list[dict], markets_by_id: dict[str, dict],
     with liq_col:
         with st.container(border=True):
             liquidations_widget.render()
+
+    # Economic Calendar
+    st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
+    with st.container(border=True):
+        _render_calendar()
 
