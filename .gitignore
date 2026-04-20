@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.streamlit/secrets.toml
+tg_session.session
+*.session
+.DS_Store
+.env
