@@ -38,24 +38,27 @@ def _get(path: str, params: dict | None = None) -> Any:
     return resp.json()
 
 
-@st.cache_data(ttl=60, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def get_markets(coin_ids: list[str], vs_currency: str = "usd") -> list[dict]:
     """Current market snapshot for the given coin ids."""
     if not coin_ids:
         return []
-    data = _get(
-        "/coins/markets",
-        {
-            "vs_currency": vs_currency,
-            "ids": ",".join(coin_ids),
-            "order": "market_cap_desc",
-            "per_page": len(coin_ids),
-            "page": 1,
-            "sparkline": "true",
-            "price_change_percentage": "1h,24h,7d,30d",
-        },
-    )
-    return data
+    try:
+        data = _get(
+            "/coins/markets",
+            {
+                "vs_currency": vs_currency,
+                "ids": ",".join(coin_ids),
+                "order": "market_cap_desc",
+                "per_page": len(coin_ids),
+                "page": 1,
+                "sparkline": "true",
+                "price_change_percentage": "1h,24h,7d,30d",
+            },
+        )
+        return data
+    except Exception:
+        return []
 
 
 @st.cache_data(ttl=300, show_spinner=False)

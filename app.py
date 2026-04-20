@@ -58,10 +58,9 @@ extras = state["extra"]
 all_coins = core + extras
 ids = [c["id"] for c in all_coins]
 
-try:
-    markets = cg.get_markets(ids)
-except Exception as e:  # noqa: BLE001
-    st.error(f"CoinGecko nicht erreichbar: {e}")
+markets = cg.get_markets(ids)
+if not markets:
+    st.warning("CoinGecko rate-limit erreicht – Daten werden in Kürze geladen. Seite neu laden.")
     st.stop()
 
 markets_by_id = {m["id"]: m for m in markets}
