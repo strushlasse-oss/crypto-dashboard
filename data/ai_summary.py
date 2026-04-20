@@ -13,10 +13,14 @@ from data import liquidations as liq
 
 
 def _api_key() -> str | None:
+    # env var first (Railway), then secrets.toml (local)
+    key = os.environ.get("ANTHROPIC_API_KEY")
+    if key:
+        return key
     try:
         return st.secrets["ANTHROPIC_API_KEY"]
     except Exception:
-        return os.environ.get("ANTHROPIC_API_KEY")
+        return None
 
 
 def _build_context() -> str:
