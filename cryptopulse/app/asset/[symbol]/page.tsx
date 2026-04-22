@@ -14,6 +14,10 @@ import { TickerCard } from "@/components/cards/ticker-card";
 import { SessionsCard } from "@/components/cards/sessions-card";
 import { RelativeStrengthCard } from "@/components/cards/relative-strength-card";
 import { CmeGapsCard } from "@/components/cards/cme-gaps-card";
+import { CalendarCard } from "@/components/cards/calendar-card";
+import { LiquidationsCard } from "@/components/cards/liquidations-card";
+import { TelegramCard } from "@/components/cards/telegram-card";
+import { FearGreedCard } from "@/components/cards/fear-greed-card";
 import { getMacroDesk } from "@/lib/macro-desk";
 
 export const revalidate = 300;
@@ -114,6 +118,24 @@ export default async function AssetPage({ params }: PageProps) {
             <TickerCard key={t.symbol} ticker={t} delay={0.35 + i * 0.04} />
           ))}
         </div>
+
+        {/* F&G + Liquidations + Telegram */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <FearGreedCard
+            value={data.fng?.value ?? null}
+            classification={data.fng?.classification ?? null}
+            delay={0.4}
+          />
+          <LiquidationsCard rows={data.liquidations ?? []} delay={0.45} />
+          <TelegramCard messages={data.telegram ?? []} delay={0.5} />
+        </div>
+
+        {/* Economic Calendar (full width) */}
+        {data.calendar && data.calendar.length > 0 ? (
+          <div className="mt-6">
+            <CalendarCard events={data.calendar} delay={0.55} />
+          </div>
+        ) : null}
 
         {/* Bottom row */}
         <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">

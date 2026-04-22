@@ -46,6 +46,41 @@ export type CmeGap = {
   ageDays: number;
 };
 
+export type CalendarEventLite = {
+  title: string;
+  country: string;
+  date: number;
+  diffSec: number;
+  forecast: string;
+  previous: string;
+  actual: string;
+};
+
+export type LiquidationLite = {
+  coinId: string;
+  symbol: string;
+  longPct: number;
+  shortPct: number;
+  lsRatio: number;
+  oiChangePct: number | null;
+  pressure: "longs" | "shorts" | "neutral";
+};
+
+export type NewsLite = {
+  title: string;
+  url: string;
+  source: string;
+  domain: string;
+  ageMinutes: number;
+};
+
+export type TelegramLite = {
+  id: number;
+  text: string;
+  ageMinutes: number;
+  link: string;
+};
+
 export type MacroDeskData = {
   asset: {
     symbol: string;
@@ -80,6 +115,10 @@ export type MacroDeskData = {
   sessions: { name: string; timezone: string; active: boolean; rangeStart: number; rangeEnd: number }[];
   relativeStrength: RelativeStrength[];
   cmeGaps?: CmeGap[];
+  calendar?: CalendarEventLite[];
+  liquidations?: LiquidationLite[];
+  telegram?: TelegramLite[];
+  fng?: { value: number; classification: string } | null;
 };
 
 // Deterministic pseudo-random walk so SSR and client match.

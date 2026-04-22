@@ -3,9 +3,13 @@ import { COIN_MAP, getMarkets, getMarketChart, getGlobal, type MarketRow } from 
 import { getFearGreed } from "./providers/fear-greed";
 import { getOpenGaps, type CmeGap } from "./providers/cme-gaps";
 import { getAIDeskNarrative, type AIDeskContext } from "./providers/anthropic";
+import { getCalendar } from "./providers/forex-factory";
+import { getLiquidationsForCoins } from "./providers/binance-futures";
+import { getNews, isEnabled as newsEnabled } from "./providers/crypto-panic";
+import { getMessages as getTelegram } from "./providers/telegram";
 import { snapshot, trendLabel } from "./analysis/indicators";
 import { computeEdge } from "./analysis/edge-factor";
-import type { MacroDeskData, BulletCard } from "./mock-data";
+import type { MacroDeskData, BulletCard, NewsItem } from "./mock-data";
 import { MACRO_DESK_BTC } from "./mock-data";
 
 const TICKER_SLUGS = ["eth", "sol", "bnb", "xrp"];
@@ -116,12 +120,16 @@ export async function getMacroDesk(slug: string): Promise<MacroDeskData> {
   const coin = COIN_MAP[slug] ?? COIN_MAP.btc;
   const slugs = Array.from(new Set([coin.symbol.toLowerCase(), ...TICKER_SLUGS, ...RS_SLUGS]));
 
-  const [markets, chart, fng, global, gaps] = await Promise.all([
+  const [markets, chart, fng, global, gaps, calendar, liquidations, news, telegram] = await Promise.all([
     getMarkets(slugs),
     getMarketChart(slug, 200),
     getFearGreed(),
     getGlobal(),
     slug === "btc" ? getOpenGaps() : Promise.resolve([] as CmeGap[]),
+    getCalendar("High"),
+    getLiquidationsForCoins(["bitcoin", "ethereum", "solana"]),
+    newsEnabled() ? getNews(["BTC", "ETH", "SOL"], 6) : Promise.resolve([]),
+    getTelegram(8),
   ]);
 
   const byId = new Map(markets.map((m) => [m.id, m]));
@@ -213,7 +221,16 @@ export async function getMacroDesk(slug: string): Promise<MacroDeskData> {
       { label: "AI Confidence", value: `${edge.score}%`, needle: edge.score, tone: toneForPct(edge.score - 50) },
     ],
     aiOverview: narrative.aiOverview,
-    news: MACRO_DESK_BTC.news, // news still mocked — see note below
+    news: news.length
+      ? news.map<NewsItem>((n) => ({
+          source: n.source,
+          domain: n.domain,
+          ageMinutes: Math.max(1, Math.floor((Date.now() - n.publishedAt) / 60_000)),
+          title: n.title,
+          summary: "",
+          url: n.url,
+        }))
+      : MACRO_DESK_BTC.news,
     mood: {
       ageMinutes: fng ? Math.max(1, Math.floor((Date.now() - fng.updated) / 60_000)) : 5,
       stance: narrative.mood.stance,
@@ -236,6 +253,26 @@ export async function getMacroDesk(slug: string): Promise<MacroDeskData> {
     sessions: buildSessions(),
     relativeStrength,
     cmeGaps: gaps,
+    calendar: calendar.slice(0, 8).map((e) => ({
+      title: e.title,
+      country: e.country,
+      date: e.date,
+      diffSec: e.diffSec,
+      forecast: e.forecast,
+      previous: e.previous,
+      actual: e.actual,
+    })),
+    liquidations: liquidations.map((l) => ({
+      coinId: l.coinId,
+      symbol: l.symbol.replace("USDT", ""),
+      longPct: l.longPct,
+      shortPct: l.shortPct,
+      lsRatio: l.lsRatio,
+      oiChangePct: l.oiChangePct,
+      pressure: l.pressure,
+    })),
+    telegram: telegram.map((t) => ({ id: t.id, text: t.text, ageMinutes: t.ageMinutes, link: t.link })),
+    fng: fng ? { value: fng.value, classification: fng.classification } : null,
   };
 
   return data;
