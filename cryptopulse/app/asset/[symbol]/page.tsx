@@ -13,7 +13,10 @@ import { PulseCard } from "@/components/cards/pulse-card";
 import { TickerCard } from "@/components/cards/ticker-card";
 import { SessionsCard } from "@/components/cards/sessions-card";
 import { RelativeStrengthCard } from "@/components/cards/relative-strength-card";
-import { getMacroDesk } from "@/lib/mock-data";
+import { CmeGapsCard } from "@/components/cards/cme-gaps-card";
+import { getMacroDesk } from "@/lib/macro-desk";
+
+export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{ symbol: string }>;
@@ -21,7 +24,7 @@ type PageProps = {
 
 export default async function AssetPage({ params }: PageProps) {
   const { symbol } = await params;
-  const data = getMacroDesk(symbol);
+  const data = await getMacroDesk(symbol);
 
   return (
     <div className="relative flex min-h-screen">
@@ -97,6 +100,13 @@ export default async function AssetPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        {/* CME Gaps (BTC only) */}
+        {symbol === "btc" && data.cmeGaps && data.cmeGaps.length > 0 ? (
+          <div className="mt-6">
+            <CmeGapsCard gaps={data.cmeGaps} price={data.asset.price} delay={0.3} />
+          </div>
+        ) : null}
 
         {/* Ticker strip */}
         <div className="mt-6 grid grid-cols-2 gap-4 xl:grid-cols-4">

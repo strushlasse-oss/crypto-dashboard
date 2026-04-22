@@ -37,6 +37,15 @@ export type RelativeStrength = {
   value: number;
 };
 
+export type CmeGap = {
+  low: number;
+  high: number;
+  sizePct: number;
+  direction: "up" | "down";
+  date: string;
+  ageDays: number;
+};
+
 export type MacroDeskData = {
   asset: {
     symbol: string;
@@ -70,6 +79,7 @@ export type MacroDeskData = {
   ticker: TickerEntry[];
   sessions: { name: string; timezone: string; active: boolean; rangeStart: number; rangeEnd: number }[];
   relativeStrength: RelativeStrength[];
+  cmeGaps?: CmeGap[];
 };
 
 // Deterministic pseudo-random walk so SSR and client match.
