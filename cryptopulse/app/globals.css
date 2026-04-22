@@ -1,0 +1,154 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* shadcn bindings (kept) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+
+  /* CryptoPulse brand tokens */
+  --color-bg-base: var(--bg-base);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-elevated-2: var(--bg-elevated-2);
+  --color-border-soft: var(--border-soft);
+  --color-text-primary: var(--text-primary);
+  --color-text-muted: var(--text-muted);
+  --color-text-dim: var(--text-dim);
+  --color-cp-accent: var(--accent-cp);
+  --color-cp-accent-glow: var(--accent-glow);
+  --color-bullish: var(--bullish);
+  --color-bearish: var(--bearish);
+  --color-neutral: var(--neutral);
+  --color-info: var(--info);
+}
+
+:root {
+  /* CryptoPulse palette */
+  --bg-base:       #070B14;
+  --bg-elevated:   #0D1424;
+  --bg-elevated-2: #111a2e;
+  --border-soft:   #141c2e;
+  --text-primary:  #E6EDF7;
+  --text-muted:    #8A97B0;
+  --text-dim:      #5A6782;
+  --accent-cp:     #2DD4BF;
+  --accent-glow:   #2DD4BF33;
+  --bullish:       #22C55E;
+  --bearish:       #EF4444;
+  --neutral:       #F59E0B;
+  --info:          #3B82F6;
+
+  /* shadcn aliases mapped to brand */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --card: var(--bg-elevated);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent-cp);
+  --primary-foreground: #03151A;
+  --secondary: var(--bg-elevated-2);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-elevated-2);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--bg-elevated-2);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--bearish);
+  --border: #1B2436;
+  --input: #1B2436;
+  --ring: var(--accent-cp);
+  --radius: 1rem;
+}
+
+.dark {
+  /* Keep identical dark palette — app is dark-only */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --card: var(--bg-elevated);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent-cp);
+  --primary-foreground: #03151A;
+  --secondary: var(--bg-elevated-2);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-elevated-2);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--bg-elevated-2);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--bearish);
+  --border: #1B2436;
+  --input: #1B2436;
+  --ring: var(--accent-cp);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    background-image:
+      radial-gradient(circle at 90% 0%, rgba(45, 212, 191, 0.08) 0%, transparent 45%),
+      radial-gradient(circle at 5% 100%, rgba(99, 102, 241, 0.05) 0%, transparent 45%);
+    background-attachment: fixed;
+  }
+  .mono, .tabular {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .cp-card {
+    @apply rounded-2xl border backdrop-blur-sm transition-all duration-200;
+    background-color: var(--bg-elevated);
+    border-color: var(--border);
+  }
+  .cp-card:hover {
+    border-color: rgba(45, 212, 191, 0.3);
+    box-shadow:
+      0 0 0 1px rgba(45, 212, 191, 0.15),
+      0 20px 40px -20px rgba(45, 212, 191, 0.2);
+  }
+  .cp-pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold;
+  }
+  .cp-label-caps {
+    @apply text-[10px] font-semibold tracking-[0.14em] uppercase;
+    color: var(--text-muted);
+  }
+}
