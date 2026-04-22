@@ -23,7 +23,20 @@
       "Bash(git commit *)",
       "Bash(git remote *)",
       "Bash(git push *)",
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(pnpm -v)",
+      "Bash(command -v corepack)",
+      "Read(//usr/local/bin/**)",
+      "Bash(sw_vers)",
+      "Read(//private/tmp/**)",
+      "Bash(curl -fsSL https://nodejs.org/dist/v22.11.0/node-v22.11.0-darwin-arm64.tar.xz -o node.tar.xz)",
+      "Bash(tar -xJf node.tar.xz)",
+      "Bash(rsync -a node-v22.11.0-darwin-arm64/ ~/.local/share/node/)",
+      "Bash(ln -sf ~/.local/share/node/bin/node ~/.local/bin/node)",
+      "Bash(~/.local/bin/npm install *)",
+      "Bash(~/.local/share/node/bin/pnpm -v)",
+      "Bash(ln -sf ~/.local/share/node/bin/pnpm ~/.local/bin/pnpm)",
+      "Bash(~/.local/bin/pnpm -v)"
     ]
   }
 }
