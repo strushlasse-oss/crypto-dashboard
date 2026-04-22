@@ -10,7 +10,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
+  --font-display: var(--font-display);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -117,6 +118,7 @@
   html {
     @apply font-sans;
     color-scheme: dark;
+    font-size: 16.5px;
   }
   body {
     background-color: var(--bg-base);
@@ -125,10 +127,17 @@
       radial-gradient(circle at 90% 0%, rgba(45, 212, 191, 0.08) 0%, transparent 45%),
       radial-gradient(circle at 5% 100%, rgba(99, 102, 241, 0.05) 0%, transparent 45%);
     background-attachment: fixed;
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+  h1, h2, h3, h4, .cp-heading {
+    font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
   .mono, .tabular {
     font-family: var(--font-geist-mono), ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -145,10 +154,17 @@
       0 20px 40px -20px rgba(45, 212, 191, 0.2);
   }
   .cp-pill {
-    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold;
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-bold;
   }
   .cp-label-caps {
-    @apply text-[10px] font-semibold tracking-[0.14em] uppercase;
+    font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+    @apply text-[12px] font-bold uppercase;
+    letter-spacing: 0.14em;
     color: var(--text-muted);
+  }
+  .cp-heading-xl {
+    font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 }

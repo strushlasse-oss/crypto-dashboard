@@ -30,12 +30,12 @@ export function GradientBar({ stops, position }: GradientBarProps) {
           </div>
         </motion.div>
       </div>
-      <div className="mt-2 flex justify-between">
+      <div className="mt-2.5 flex justify-between">
         {stops.map((s) => (
           <span
             key={s.label}
-            className="text-[10px] font-medium uppercase tracking-wider"
-            style={{ color: s.color }}
+            className="cp-heading-xl text-[12px] uppercase"
+            style={{ color: s.color, letterSpacing: "0.12em" }}
           >
             {s.label}
           </span>

@@ -35,28 +35,28 @@ export function PriceCard({ symbol, price, deltaPct, chart, delay = 0 }: Props) 
       <div className="flex items-start justify-between">
         <div>
           <div className="cp-label-caps">{symbol} / USD</div>
-          <div className="mono mt-1 text-[32px] font-semibold leading-none tracking-tight tabular">
+          <div className="mono mt-2 text-[40px] font-bold leading-none tabular">
             {formatUsd(price)}
           </div>
           <div
             className={cn(
-              "cp-pill mt-3",
+              "cp-pill mt-3.5",
               bullish
                 ? "bg-[color:var(--bullish)]/12 text-[color:var(--bullish)]"
                 : "bg-[color:var(--bearish)]/12 text-[color:var(--bearish)]",
             )}
           >
-            {bullish ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+            {bullish ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
             {formatPct(deltaPct)}
           </div>
         </div>
         <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
-          <TabsList className="h-8 bg-[color:var(--bg-elevated-2)] p-0.5">
+          <TabsList className="h-9 bg-[color:var(--bg-elevated-2)] p-0.5">
             {(["1D", "5D", "1M"] as Range[]).map((r) => (
               <TabsTrigger
                 key={r}
                 value={r}
-                className="h-7 px-3 text-[11px] font-semibold tracking-wide data-[state=active]:bg-[color:var(--accent-glow)] data-[state=active]:text-[color:var(--accent-cp)]"
+                className="h-8 px-3.5 text-[12px] font-bold tracking-wider data-[state=active]:bg-[color:var(--accent-glow)] data-[state=active]:text-[color:var(--accent-cp)]"
               >
                 {r}
               </TabsTrigger>

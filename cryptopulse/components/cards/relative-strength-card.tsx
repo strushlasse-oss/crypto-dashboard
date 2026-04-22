@@ -13,7 +13,7 @@ export function RelativeStrengthCard({ rows, delay = 0 }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <div className="cp-label-caps">Relative Strength</div>
-          <div className="mt-1 text-[15px] font-semibold text-[color:var(--text-primary)]">
+          <div className="cp-heading-xl mt-1.5 text-[19px] text-[color:var(--text-primary)]">
             Crypto Baskets vs TOTAL2
           </div>
         </div>
@@ -29,10 +29,10 @@ export function RelativeStrengthCard({ rows, delay = 0 }: Props) {
           const color = positive ? "var(--bullish)" : "var(--bearish)";
           return (
             <div key={r.symbol} className="flex items-center gap-3">
-              <span className="w-12 text-[12px] font-semibold text-[color:var(--text-muted)]">
+              <span className="cp-heading-xl w-14 text-[14px] uppercase text-[color:var(--text-muted)]">
                 {r.symbol}
               </span>
-              <div className="relative h-6 flex-1 rounded-md bg-[color:var(--bg-elevated-2)]">
+              <div className="relative h-7 flex-1 rounded-md bg-[color:var(--bg-elevated-2)]">
                 <div
                   className="absolute inset-y-0 w-px"
                   style={{ left: "50%", background: "var(--border)" }}
@@ -47,7 +47,7 @@ export function RelativeStrengthCard({ rows, delay = 0 }: Props) {
                 />
               </div>
               <span
-                className="mono w-12 text-right text-[12px] font-semibold tabular"
+                className="mono w-14 text-right text-[13.5px] font-bold tabular"
                 style={{ color }}
               >
                 {r.value >= 0 ? "+" : ""}

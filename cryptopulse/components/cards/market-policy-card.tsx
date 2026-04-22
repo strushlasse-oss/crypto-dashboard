@@ -15,15 +15,15 @@ export function MarketPolicyCard({ data, delay = 0 }: Props) {
       </div>
 
       <div className="mt-5 flex items-center gap-5">
-        <div className="flex shrink-0 flex-col items-center" style={{ width: 130 }}>
+        <div className="flex shrink-0 flex-col items-center" style={{ width: 140 }}>
           <div
-            className="flex h-[72px] w-[72px] items-center justify-center rounded-full"
+            className="flex h-[84px] w-[84px] items-center justify-center rounded-full"
             style={{
               background: "radial-gradient(circle, rgba(45,212,191,0.25) 0%, rgba(45,212,191,0.02) 70%)",
             }}
           >
             <Feather
-              className="h-[52px] w-[52px]"
+              className="h-[60px] w-[60px]"
               style={{
                 color: "var(--accent-cp)",
                 filter: "drop-shadow(0 0 12px rgba(45,212,191,0.4))",
@@ -32,7 +32,7 @@ export function MarketPolicyCard({ data, delay = 0 }: Props) {
             />
           </div>
           <div
-            className="mt-3 text-[13px] font-semibold tracking-[0.18em]"
+            className="cp-heading-xl mt-3 text-[15px] uppercase tracking-[0.22em]"
             style={{ color: "var(--accent-cp)" }}
           >
             {data.stance}
@@ -40,17 +40,17 @@ export function MarketPolicyCard({ data, delay = 0 }: Props) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="text-[15px] font-semibold leading-tight text-[color:var(--text-primary)]">
+          <div className="cp-heading-xl text-[18px] leading-tight text-[color:var(--text-primary)]">
             {data.headline}
           </div>
-          <p className="mt-2 text-[12.5px] leading-relaxed text-[color:var(--text-muted)]">
+          <p className="mt-2.5 text-[13.5px] leading-relaxed text-[color:var(--text-muted)]">
             {data.body}
           </p>
         </div>
       </div>
 
       <div
-        className="mt-4 rounded-lg border px-3 py-2 text-[11.5px]"
+        className="mt-4 rounded-lg border px-3.5 py-2.5 text-[12.5px] font-medium"
         style={{
           borderColor: "rgba(45, 212, 191, 0.25)",
           background: "rgba(45, 212, 191, 0.07)",

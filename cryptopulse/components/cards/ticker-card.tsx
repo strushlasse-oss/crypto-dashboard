@@ -18,18 +18,18 @@ export function TickerCard({ ticker, delay = 0 }: Props) {
     <CardShell delay={delay} className="!p-4">
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+          <div className="cp-heading-xl text-[15px] uppercase tracking-wide text-[color:var(--text-primary)]">
             {ticker.symbol}
           </div>
-          <div className="text-[10.5px] text-[color:var(--text-muted)]">{ticker.pair}</div>
+          <div className="text-[11px] font-medium text-[color:var(--text-muted)]">{ticker.pair}</div>
         </div>
         <div className="text-right">
-          <div className="mono text-[14px] font-semibold tabular">
+          <div className="mono text-[16px] font-bold tabular">
             {formatUsd(ticker.price, { decimals: ticker.price > 100 ? 2 : 3 })}
           </div>
           <div
             className={cn(
-              "mono mt-0.5 flex items-center justify-end gap-0.5 text-[11px] font-semibold tabular",
+              "mono mt-1 flex items-center justify-end gap-0.5 text-[12px] font-bold tabular",
             )}
             style={{ color }}
           >

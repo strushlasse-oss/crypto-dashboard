@@ -38,15 +38,15 @@ export function Sidebar() {
     <aside
       className={cn(
         "z-20 flex shrink-0 flex-col items-center gap-1 border-r bg-[color:var(--bg-elevated)]/60 backdrop-blur-md",
-        "fixed inset-y-0 left-0 hidden w-20 py-5 md:flex",
+        "fixed inset-y-0 left-0 hidden w-24 py-5 md:flex",
       )}
       style={{ borderColor: "var(--border-soft)" }}
     >
-      <Link href="/asset/btc" className="mb-6 flex flex-col items-center gap-1">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(135deg,rgba(45,212,191,0.3),rgba(45,212,191,0.05))] text-lg font-bold text-[color:var(--accent-cp)] shadow-[inset_0_0_0_1px_rgba(45,212,191,0.3)]">
+      <Link href="/asset/btc" className="mb-7 flex flex-col items-center gap-1.5">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[linear-gradient(135deg,rgba(45,212,191,0.3),rgba(45,212,191,0.05))] text-xl font-black text-[color:var(--accent-cp)] shadow-[inset_0_0_0_1px_rgba(45,212,191,0.3)]">
           ₿
         </div>
-        <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-[color:var(--accent-cp)]">
+        <span className="cp-heading-xl text-[11px] uppercase tracking-[0.18em] text-[color:var(--accent-cp)]">
           Pulse
         </span>
       </Link>
@@ -71,7 +71,7 @@ export function Sidebar() {
               )}
               <Icon
                 className={cn(
-                  "h-5 w-5 transition-colors",
+                  "h-[22px] w-[22px] transition-colors",
                   active
                     ? "text-[color:var(--accent-cp)]"
                     : "text-[color:var(--text-muted)] group-hover:text-[color:var(--text-primary)]",
@@ -80,7 +80,7 @@ export function Sidebar() {
               />
               <span
                 className={cn(
-                  "text-[9px] font-semibold uppercase tracking-[0.12em] transition-colors",
+                  "cp-heading-xl text-[10.5px] uppercase tracking-[0.12em] transition-colors",
                   active
                     ? "text-[color:var(--accent-cp)]"
                     : "text-[color:var(--text-muted)] group-hover:text-[color:var(--text-primary)]",

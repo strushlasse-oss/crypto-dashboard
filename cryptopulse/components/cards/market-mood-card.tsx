@@ -16,26 +16,26 @@ export function MarketMoodCard({ data, delay = 0 }: Props) {
 
       <div className="mt-5 flex items-center gap-5">
         <div className="shrink-0">
-          <Gauge value={data.needle} size={130} />
+          <Gauge value={data.needle} size={140} />
           <div
-            className="mt-1 text-center text-[13px] font-semibold tracking-wider"
+            className="cp-heading-xl mt-1 text-center text-[15px] uppercase tracking-[0.18em]"
             style={{ color: "var(--bullish)" }}
           >
             {data.stance}
           </div>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[15px] font-semibold leading-tight text-[color:var(--text-primary)]">
+          <div className="cp-heading-xl text-[18px] leading-tight text-[color:var(--text-primary)]">
             {data.headline}
           </div>
-          <p className="mt-2 text-[12.5px] leading-relaxed text-[color:var(--text-muted)]">
+          <p className="mt-2.5 text-[13.5px] leading-relaxed text-[color:var(--text-muted)]">
             {data.body}
           </p>
         </div>
       </div>
 
       <div
-        className="mt-4 rounded-lg border px-3 py-2 text-[11.5px]"
+        className="mt-4 rounded-lg border px-3.5 py-2.5 text-[12.5px] font-medium"
         style={{
           borderColor: "rgba(34, 197, 94, 0.25)",
           background: "rgba(34, 197, 94, 0.07)",

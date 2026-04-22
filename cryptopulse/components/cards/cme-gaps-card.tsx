@@ -15,7 +15,7 @@ export function CmeGapsCard({ gaps, price, delay = 0 }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <div className="cp-label-caps">CME Gaps</div>
-          <div className="mt-1 text-[15px] font-semibold text-[color:var(--text-primary)]">
+          <div className="cp-heading-xl mt-1.5 text-[19px] text-[color:var(--text-primary)]">
             Unfilled Weekend Gaps · BTC Futures
           </div>
         </div>

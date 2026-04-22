@@ -31,7 +31,7 @@ export default async function AssetPage({ params }: PageProps) {
       <Sidebar />
       <MobileNav />
 
-      <main className="flex-1 px-5 pb-28 pt-6 md:ml-20 md:px-8 md:pb-10">
+      <main className="flex-1 px-5 pb-28 pt-6 md:ml-24 md:px-10 md:pb-12">
         {/* Back link */}
         <Link
           href="/asset/btc"
@@ -42,10 +42,10 @@ export default async function AssetPage({ params }: PageProps) {
         </Link>
 
         {/* Header row: asset + gauges */}
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-5">
-          <div className="flex items-center gap-4">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-5">
+          <div className="flex items-center gap-5">
             <div
-              className="flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold"
+              className="flex h-14 w-14 items-center justify-center rounded-xl text-2xl font-black"
               style={{
                 background: "linear-gradient(135deg, rgba(45,212,191,0.3), rgba(45,212,191,0.05))",
                 color: "var(--accent-cp)",
@@ -55,10 +55,10 @@ export default async function AssetPage({ params }: PageProps) {
               ₿
             </div>
             <div>
-              <h1 className="text-[44px] font-bold leading-none tracking-tight">
+              <h1 className="cp-heading-xl text-[58px] leading-[0.95] uppercase">
                 {data.asset.symbol}
               </h1>
-              <div className="mt-1 text-[13px] text-[color:var(--text-muted)]">
+              <div className="mt-1.5 text-[14px] font-medium text-[color:var(--text-muted)]">
                 {data.asset.pair}
               </div>
             </div>

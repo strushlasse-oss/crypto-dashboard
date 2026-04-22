@@ -26,7 +26,7 @@ export function PulseCard({ data, delay = 0 }: Props) {
         >
           <Waves className="h-5 w-5" strokeWidth={2} />
         </div>
-        <div className="text-[15px] font-bold tracking-[0.14em]" style={{ color }}>
+        <div className="cp-heading-xl text-[18px] uppercase tracking-[0.16em]" style={{ color }}>
           {data.title}
         </div>
       </div>
@@ -35,7 +35,7 @@ export function PulseCard({ data, delay = 0 }: Props) {
         <GradientBar stops={data.stops} position={data.position} />
       </div>
 
-      <ul className="mt-5 space-y-2 text-[12.5px] leading-relaxed text-[color:var(--text-muted)]">
+      <ul className="mt-5 space-y-2.5 text-[13px] leading-relaxed text-[color:var(--text-muted)]">
         {data.bullets.map((b, i) => (
           <li key={i} className="flex gap-2">
             <span aria-hidden style={{ color }}>
